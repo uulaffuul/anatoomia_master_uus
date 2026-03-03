@@ -13,7 +13,6 @@ void main() {
   runApp(const AnatoomiaMaster());
 }
 
-// Lubab hiirega lohistamist (swipe) veebis ja desktopis
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
   @override
   Set<PointerDeviceKind> get dragDevices => {
@@ -40,7 +39,6 @@ class AnatoomiaMaster extends StatelessWidget {
   }
 }
 
-// --- ÜHINE TTS FUNKTSIOON ---
 final FlutterTts globalTts = FlutterTts();
 
 Future<void> seadistaTts() async {
@@ -56,28 +54,18 @@ Future<void> seadistaTts() async {
 
 Future<void> loeTekst(String tekst, bool isLatin) async {
   if (kIsWeb) return;
-
   String toodedTekst = tekst;
   if (!isLatin) {
     toodedTekst = toodedTekst
-        .replaceAll('C1', 'kaelalüli üks')
-        .replaceAll('C2', 'kaelalüli kaks')
-        .replaceAll('C3', 'kaelalüli kolm')
-        .replaceAll('C4', 'kaelalüli neli')
-        .replaceAll('C5', 'kaelalüli viis')
-        .replaceAll('C6', 'kaelalüli kuus')
-        .replaceAll('C7', 'kaelalüli seitse')
-        .replaceAll('L1', 'nimmelüli üks')
-        .replaceAll('L2', 'nimmelüli kaks')
-        .replaceAll('L3', 'nimmelüli kolm')
-        .replaceAll('L4', 'nimmelüli neli')
-        .replaceAll('L5', 'nimmelüli viis')
-        .replaceAll('GH', 'õlaliigese')
-        .replaceAll('post.', 'tagumine')
-        .replaceAll('ant.', 'eesmine')
-        .replaceAll('dist.', 'kaugmine');
+        .replaceAll('C1', 'kaelalüli üks').replaceAll('C2', 'kaelalüli kaks')
+        .replaceAll('C3', 'kaelalüli kolm').replaceAll('C4', 'kaelalüli neli')
+        .replaceAll('C5', 'kaelalüli viis').replaceAll('C6', 'kaelalüli kuus')
+        .replaceAll('C7', 'kaelalüli seitse').replaceAll('L1', 'nimmelüli üks')
+        .replaceAll('L2', 'nimmelüli kaks').replaceAll('L3', 'nimmelüli kolm')
+        .replaceAll('L4', 'nimmelüli neli').replaceAll('L5', 'nimmelüli viis')
+        .replaceAll('GH', 'õlaliigese').replaceAll('post.', 'tagumine')
+        .replaceAll('ant.', 'eesmine').replaceAll('dist.', 'kaugmine');
   }
-
   try {
     if (isLatin) {
       bool supportsLatin = await globalTts.isLanguageAvailable("la") ?? false;
@@ -99,6 +87,7 @@ class Avaleht extends StatefulWidget {
 
 class _AvalehtState extends State<Avaleht> {
   List<List<String>> _andmed = [];
+  bool _laadiminePooleli = true;
 
   @override
   void initState() {
@@ -120,14 +109,22 @@ class _AvalehtState extends State<Avaleht> {
       if (puhastatud.isNotEmpty && puhastatud[0][0].toLowerCase().contains('fail')) {
         puhastatud.removeAt(0);
       }
-      setState(() { _andmed = puhastatud; });
+      setState(() {
+        _andmed = puhastatud;
+        _laadiminePooleli = false;
+      });
     } catch (e) {
       debugPrint("Viga: $e");
+      setState(() { _laadiminePooleli = false; });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_laadiminePooleli) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text("Anatoomia Master"), centerTitle: true),
       body: Center(
@@ -159,7 +156,6 @@ class _AvalehtState extends State<Avaleht> {
 class SirvimisEkraan extends StatefulWidget {
   final List<List<String>> andmed;
   const SirvimisEkraan({super.key, required this.andmed});
-
   @override
   State<SirvimisEkraan> createState() => _SirvimisEkraanState();
 }
@@ -190,7 +186,7 @@ class _SirvimisEkraanState extends State<SirvimisEkraan> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.andmed.isEmpty) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (widget.andmed.isEmpty) return const Scaffold(body: Center(child: Text("Andmed puuduvad!")));
     bool isWide = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
@@ -228,7 +224,6 @@ class _SirvimisEkraanState extends State<SirvimisEkraan> {
             onPageChanged: (i) => setState(() => _currentPage = i),
             itemBuilder: (context, index) {
               final lihas = _filtreeritudAndmed[index];
-
               Widget infoSisu = Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -256,7 +251,6 @@ class _SirvimisEkraanState extends State<SirvimisEkraan> {
                   _infoRida("FUNKTSIOON (F)", lihas[4]),
                 ],
               );
-
               return SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -350,7 +344,6 @@ Widget leiaPiltGlobaalne(String nimi) {
     'assets/pildid/kasivarre painutajalihased.png',
     'assets/pildid/kasivarre sirutajalihased.png',
   ];
-
   return _prooviPilte(proovid, 0);
 }
 
@@ -458,13 +451,7 @@ class _ManguekraanState extends State<Manguekraan> {
       else { if (widget.isExam) { _eksamiProgress++; _uusKysimus(); } else { _naitaViduSonumit(); } }
     } else {
       setState(() {
-        if (!_faasisTehtudViga) {
-          _valedStats[_faas]++;
-          _faasisTehtudViga = true;
-          if (_faas == 0) {
-            _salvestaViga(_andmed[_oigeIndeks][0]);
-          }
-        }
+        if (!_faasisTehtudViga) { _valedStats[_faas]++; _faasisTehtudViga = true; if (_faas == 0) _salvestaViga(_andmed[_oigeIndeks][0]); }
         _valedVastused.add(v);
       });
     }
@@ -485,7 +472,6 @@ class _ManguekraanState extends State<Manguekraan> {
     if (!_laetud) return const Scaffold(body: Center(child: CircularProgressIndicator()));
     final lihas = _andmed[_oigeIndeks];
     bool isWide = MediaQuery.of(context).size.width > 800;
-
     Widget sisu = Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       if (_faas > 0) Text(lihas[1], style: TextStyle(fontSize: isWide ? 40 : 34, fontWeight: FontWeight.bold, color: Colors.deepPurple), textAlign: TextAlign.center),
       const SizedBox(height: 10),
@@ -494,20 +480,19 @@ class _ManguekraanState extends State<Manguekraan> {
       ..._valikud.map((v) {
         bool onVale = _valedVastused.contains(v);
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 7),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size(double.infinity, isWide ? 90 : 75),
-              backgroundColor: onVale ? Colors.red : null,
-              disabledBackgroundColor: onVale ? Colors.red : null
-            ),
-            onPressed: onVale ? null : () => _kontrolliVastust(v),
-            child: Text(_faas == 0 && !v.toLowerCase().startsWith('m.') ? "m. $v" : v, style: TextStyle(fontSize: isWide ? 26 : 22), textAlign: TextAlign.center)
-          )
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 7),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    minimumSize: Size(double.infinity, isWide ? 90 : 75),
+                    backgroundColor: onVale ? Colors.red : null,
+                    disabledBackgroundColor: onVale ? Colors.red : null
+                ),
+                onPressed: onVale ? null : () => _kontrolliVastust(v),
+                child: Text(_faas == 0 && !v.toLowerCase().startsWith('m.') ? "m. $v" : v, style: TextStyle(fontSize: isWide ? 26 : 22), textAlign: TextAlign.center)
+            )
         );
       }),
     ]);
-
     return Scaffold(
       appBar: AppBar(title: Text(widget.isExam ? "EKSAM: ${_eksamiProgress + 1}/20" : "ÕPPIMINE"), actions: [
         if (!widget.isExam && !kIsWeb) IconButton(icon: const Icon(Icons.volume_up, size: 35), onPressed: () => loeTekst(_faas == 0 ? lihas[0] : lihas[_faas + 1], _faas == 0)),
