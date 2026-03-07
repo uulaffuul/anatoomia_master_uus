@@ -13,6 +13,7 @@ void main() {
   runApp(const AnatoomiaMaster());
 }
 
+// Lubab hiirega lohistamist (swipe) veebis ja desktopis
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
   @override
   Set<PointerDeviceKind> get dragDevices => {
@@ -29,7 +30,7 @@ class AnatoomiaMaster extends StatelessWidget {
     return MaterialApp(
       scrollBehavior: MyCustomScrollBehavior(),
       debugShowCheckedModeBanner: false,
-      title: 'Anatoomia Master',
+      title: 'Intensive PT Lihased',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -39,6 +40,7 @@ class AnatoomiaMaster extends StatelessWidget {
   }
 }
 
+// --- ÜHINE TTS FUNKTSIOON ---
 final FlutterTts globalTts = FlutterTts();
 
 Future<void> seadistaTts() async {
@@ -54,6 +56,7 @@ Future<void> seadistaTts() async {
 
 Future<void> loeTekst(String tekst, bool isLatin) async {
   if (kIsWeb) return;
+
   String toodedTekst = tekst;
   if (!isLatin) {
     toodedTekst = toodedTekst
@@ -126,7 +129,7 @@ class _AvalehtState extends State<Avaleht> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Anatoomia Master"), centerTitle: true),
+      appBar: AppBar(title: const Text("Intensive PT Lihased"), centerTitle: true),
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -451,7 +454,9 @@ class _ManguekraanState extends State<Manguekraan> {
       else { if (widget.isExam) { _eksamiProgress++; _uusKysimus(); } else { _naitaViduSonumit(); } }
     } else {
       setState(() {
-        if (!_faasisTehtudViga) { _valedStats[_faas]++; _faasisTehtudViga = true; if (_faas == 0) _salvestaViga(_andmed[_oigeIndeks][0]); }
+        if (!_faasisTehtudViga) {
+          _valedStats[_faas]++;
+          _faasisTehtudViga = true; if (_faas == 0) _salvestaViga(_andmed[_oigeIndeks][0]); }
         _valedVastused.add(v);
       });
     }
@@ -494,7 +499,7 @@ class _ManguekraanState extends State<Manguekraan> {
       }),
     ]);
     return Scaffold(
-      appBar: AppBar(title: Text(widget.isExam ? "EKSAM: ${_eksamiProgress + 1}/20" : "ÕPPIMINE"), actions: [
+      appBar: AppBar(title: Text(widget.isExam ? "EKSAM: ${_eksamiProgress + 1}/20" : "Intensive PT Lihased"), actions: [
         if (!widget.isExam && !kIsWeb) IconButton(icon: const Icon(Icons.volume_up, size: 35), onPressed: () => loeTekst(_faas == 0 ? lihas[0] : lihas[_faas + 1], _faas == 0)),
         if (widget.isExam) Center(child: Padding(padding: const EdgeInsets.only(right: 15), child: Text("${_aegSekundites ~/ 60}:${(_aegSekundites % 60).toString().padLeft(2, '0')}", style: const TextStyle(fontSize: 20, color: Colors.red, fontWeight: FontWeight.bold)))),
       ]),

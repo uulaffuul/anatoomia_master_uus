@@ -53,6 +53,7 @@ flutter:
   assets:
     - assets/
     - assets/andmed.csv
+    - assets/pildid/
 
 flutter_launcher_icons:
   android: true

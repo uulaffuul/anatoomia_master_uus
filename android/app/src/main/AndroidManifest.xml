@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="anatoomia_master"
+        android:label="Intensive PT Lihased"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
